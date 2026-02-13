@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  role      String   // admin, doctor, receptionist, lab_technician, pharmacist
+  name      String?
+  createdAt DateTime @default(now())
+
+  @@map("users")
+}
+
+// 1. Registration & OPD Module
+model OPD_REG {
+  id           Int      @id @default(autoincrement()) // Serial
+  patient_id   String   @unique // PAT-2026...
+  full_name    String
+  age          String?
+  gender       String?
+  phone        String?
+  email        String?
+  department   String?
+  aadhar_card  String?
+  created_at   DateTime @default(now())
+
+  appointments appointments[]
+}
+
+model appointments {
+  id               Int      @id @default(autoincrement()) // Internal ID
+  appointment_id   String   @unique // APP-2026... (Business Key)
+  patient_id       String   // FK to OPD_REG.patient_id
+  doctor_name      String?
+  department       String?
+  status           String   @default("Pending") // Pending, Completed, etc.
+  reason_for_visit String?
+  appointment_date DateTime @default(now())
+  
+  // Relations
+  patient          OPD_REG  @relation(fields: [patient_id], references: [patient_id])
+}
+
+// 2. Clinical & Doctor Module
+model Clinical_EHR {
+  appointment_id String   @id // Primary Key
+  patient_id     String
+  doctor_name    String?
+  diagnosis      String?
+  doctor_notes   String?
+  created_at     DateTime @default(now())
+}
+
+// 3. Laboratory Module
+model lab_orders {
+  id                     Int      @id @default(autoincrement()) // Using Serial for consistency if not specified, but User said 'id'
+  barcode                String   @unique
+  patient_id             String
+  doctor_id              String
+  test_type              String
+  status                 String   // Pending, Completed
+  result_value           String?
+  report_url             String?
+  assigned_technician_id String?
+  created_at             DateTime @default(now())
+  
+  // Relations could be added here if we had doctor/tech tables linked, keeping simple for now
+}
+
+model lab_test_inventory {
+  id           Int     @id @default(autoincrement())
+  test_name    String  @unique
+  price        Float
+  is_available Boolean @default(true)
+}
+
+model lab_staff {
+  id          Int     @id @default(autoincrement())
+  name        String
+  role        String
+  is_on_shift Boolean @default(false)
+}
+
+model lab_audit_logs {
+  id          Int      @id @default(autoincrement())
+  action_type String
+  barcode     String
+  details     String?
+  created_at  DateTime @default(now())
+}
+
+// 4. Pharmacy Module
+model pharmacy_medicine_master {
+  id             Int     @id @default(autoincrement())
+  brand_name     String  @unique
+  generic_name   String?
+  price_per_unit Float
+  min_threshold  Int     @default(10)
+  
+  batches        pharmacy_batch_inventory[]
+}
+
+model pharmacy_batch_inventory {
+  id            Int      @id @default(autoincrement())
+  medicine_id   Int
+  batch_no      String   @unique
+  current_stock Int
+  expiry_date   DateTime
+  rack_location String?
+  
+  medicine      pharmacy_medicine_master @relation(fields: [medicine_id], references: [id])
+}
+
+model pharmacy_sales_audit {
+  id            Int      @id @default(autoincrement())
+  action_type   String
+  medicine_name String?  // Added for Agent
+  batch_no      String?  // Added for Agent
+  quantity_sold Int
+  details       String?
+  created_at    DateTime @default(now())
+}
+
+
+
+
+model pharmacy_orders {
+  id                    Int      @id @default(autoincrement())
+  patient_id            String
+  doctor_id             String
+  total_amount          Float    @default(0.0)
+  status                String   @default("Pending") // Pending, Processed (by Agent), Completed (Paid)
+  
+  // Fields from Agent
+  total_items_requested Int?
+  items_dispensed       Int?
+  items_missing         Int?
+  
+  created_at            DateTime @default(now())
+  
+  items                 pharmacy_order_items[]
+}
+
+model pharmacy_order_items {
+  id                    Int      @id @default(autoincrement())
+  order_id              Int
+  medicine_name         String
+  quantity_requested    Int
+  quantity_dispensed    Int?
+  unit_price            Float?
+  total_price           Float?
+  batch_id              String?  // If assigned by Agent
+  status                String   @default("Pending") // Dispensed, Out of Stock
+  
+  order                 pharmacy_orders @relation(fields: [order_id], references: [id])
+}
+
+// 5. In-Patient & Discharge Module
+model admissions {
+  admission_id String   @id @default(uuid()) // User didn't specify Serial/Text, leaving UUID for ID safety or change to String if needed. User wrote "admission_id".
+  patient_id   String
+  status       String   // Admitted, Discharged
+  diagnosis    String?
+  doctor_name  String?
+  admission_date DateTime @default(now())
+  
+  // Relations
+  summaries    discharge_summaries[]
+}
+
+model discharge_summaries {
+  id                Int      @id @default(autoincrement())
+  admission_id      String
+  patient_name      String?
+  generated_summary String   // HTML
+  created_at        DateTime @default(now())
+  
+  admission         admissions @relation(fields: [admission_id], references: [admission_id])
+}

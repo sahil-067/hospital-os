@@ -1,0 +1,40 @@
+
+[2026-02-13T11:06:36.314Z] MATCHING: "Azithral 500" (norm: 'azithral 500')
+AGAINST DISPENSED: []
+AGAINST UNAVAILABLE: []
+
+[2026-02-13T11:09:15.258Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
+AGAINST DISPENSED: []
+AGAINST UNAVAILABLE: []
+
+[2026-02-13T11:11:25.125Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":1,"items_dispensed":1,"items_missing":0,"total_amount_to_collect":80},"dispensed_medicines":[{"medicine":"Azithral 500","batch":"BATCH-AZI-001","price":80}],"unavailable_medicines":[]}]
+
+[2026-02-13T11:11:25.679Z] MATCHING: "Azithral 500" (norm: 'azithral 500')
+AGAINST DISPENSED: []
+AGAINST UNAVAILABLE: []
+
+[2026-02-13T11:13:45.655Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":1,"items_dispensed":1,"items_missing":0,"total_amount_to_collect":120},"dispensed_medicines":[{"medicine":"Augmentin 625","batch":"BATCH-AUG-001","price":120}],"unavailable_medicines":[]}]
+
+[2026-02-13T11:13:46.238Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
+AGAINST DISPENSED: ["augmentin 625"]
+AGAINST UNAVAILABLE: []
+
+[2026-02-13T11:20:17.643Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":2,"items_dispensed":2,"items_missing":0,"total_amount_to_collect":35},"dispensed_medicines":[{"medicine":"Augmentin 625","batch":"BATCH-AUG-001","price":15},{"medicine":"Pan 40","batch":"BATCH-PAN-001","price":20}],"unavailable_medicines":[]}]
+
+[2026-02-13T11:20:18.318Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
+AGAINST DISPENSED: ["augmentin 625","pan 40"]
+AGAINST UNAVAILABLE: []
+
+[2026-02-13T11:20:18.838Z] MATCHING: "Pan 40" (norm: 'pan 40')
+AGAINST DISPENSED: ["augmentin 625","pan 40"]
+AGAINST UNAVAILABLE: []
+
+[2026-02-13T11:21:13.157Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":1,"items_dispensed":1,"items_missing":0,"total_amount_to_collect":15},"dispensed_medicines":[{"medicine":"Augmentin 625","batch":"BATCH-AUG-001","price":15}],"unavailable_medicines":[]}]
+
+[2026-02-13T11:21:13.886Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
+AGAINST DISPENSED: ["augmentin 625"]
+AGAINST UNAVAILABLE: []
