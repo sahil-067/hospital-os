@@ -14,6 +14,7 @@ export async function registerPatient(formData: FormData) {
         gender: formData.get('gender') as string,
         department: formData.get('department') as string,
         email: (formData.get('email') as string) || "not given",
+        address: (formData.get('address') as string) || "not given",
         aadhar: formData.get('aadhar') as string,
     };
 
@@ -59,9 +60,10 @@ export async function registerPatient(formData: FormData) {
                     full_name: rawData.full_name,
                     phone: rawData.phone,
                     age: rawData.age,
-                    gender: rawData.gender,
                     department: rawData.department,
                     email: rawData.email,
+                    // @ts-ignore
+                    address: rawData.address,
                     aadhar_card: rawData.aadhar,
                 },
             });
@@ -88,7 +90,8 @@ export async function registerPatient(formData: FormData) {
         return {
             success: true,
             patient_id: agentPatientId,
-            appointment_id: appointmentId
+            appointment_id: appointmentId,
+            user_type: 'OPD'
         };
 
     } catch (error) {

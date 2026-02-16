@@ -38,3 +38,87 @@ AGAINST UNAVAILABLE: []
 [2026-02-13T11:21:13.886Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
 AGAINST DISPENSED: ["augmentin 625"]
 AGAINST UNAVAILABLE: []
+
+[2026-02-13T16:23:59.967Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":1,"items_dispensed":1,"items_missing":0,"total_amount_to_collect":180},"dispensed_medicines":[{"medicine":"Augmentin 625","batch":"BATCH-AUG-001","price":180}],"unavailable_medicines":[]}]
+
+[2026-02-13T16:24:03.082Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
+AGAINST DISPENSED: ["augmentin 625"]
+AGAINST UNAVAILABLE: []
+
+[2026-02-13T17:59:40.081Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":1,"items_dispensed":1,"items_missing":0,"total_amount_to_collect":15},"dispensed_medicines":[{"medicine":"Augmentin 625","batch":"BATCH-AUG-001","price":15}],"unavailable_medicines":[]}]
+
+[2026-02-13T17:59:40.578Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
+AGAINST DISPENSED: ["augmentin 625"]
+AGAINST UNAVAILABLE: []
+
+[2026-02-13T17:59:44.802Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":1,"items_dispensed":1,"items_missing":0,"total_amount_to_collect":15},"dispensed_medicines":[{"medicine":"Augmentin 625","batch":"BATCH-AUG-001","price":15}],"unavailable_medicines":[]}]
+
+[2026-02-13T17:59:45.307Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
+AGAINST DISPENSED: ["augmentin 625"]
+AGAINST UNAVAILABLE: []
+
+[2026-02-14T05:27:44.181Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":3,"items_dispensed":2,"items_missing":1,"total_amount_to_collect":105},"dispensed_medicines":[{"medicine":"Azithral 500","batch":"BATCH-AZI-001","price":100},{"medicine":"Pan 40","batch":"BATCH-PAN-001","price":5}],"unavailable_medicines":[{"medicine":"Test Med 4171","reason":"Out of Stock / No Substitute"}]}]
+
+[2026-02-14T05:27:44.995Z] MATCHING: "Azithral 500" (norm: 'azithral 500')
+AGAINST DISPENSED: ["azithral 500","pan 40"]
+AGAINST UNAVAILABLE: ["test med 4171"]
+
+[2026-02-14T05:27:46.019Z] MATCHING: "Pan 40" (norm: 'pan 40')
+AGAINST DISPENSED: ["azithral 500","pan 40"]
+AGAINST UNAVAILABLE: ["test med 4171"]
+
+[2026-02-14T05:27:46.745Z] MATCHING: "Test Med 4171" (norm: 'test med 4171')
+AGAINST DISPENSED: ["azithral 500","pan 40"]
+AGAINST UNAVAILABLE: ["test med 4171"]
+
+[2026-02-14T06:18:53.158Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":3,"items_dispensed":2,"items_missing":1,"total_amount_to_collect":115},"dispensed_medicines":[{"medicine":"Pan 40","batch":"BATCH-PAN-001","price":5},{"medicine":"Azithral 500","batch":"BATCH-AZI-001","price":110}],"unavailable_medicines":[{"medicine":"Test Med 6587","reason":"Out of Stock / No Substitute"}]}]
+
+[2026-02-14T06:18:53.728Z] MATCHING: "Pan 40" (norm: 'pan 40')
+AGAINST DISPENSED: ["pan 40","azithral 500"]
+AGAINST UNAVAILABLE: ["test med 6587"]
+
+[2026-02-14T06:18:54.290Z] MATCHING: "Test Med 6587" (norm: 'test med 6587')
+AGAINST DISPENSED: ["pan 40","azithral 500"]
+AGAINST UNAVAILABLE: ["test med 6587"]
+
+[2026-02-14T06:18:54.825Z] MATCHING: "Azithral 500" (norm: 'azithral 500')
+AGAINST DISPENSED: ["pan 40","azithral 500"]
+AGAINST UNAVAILABLE: ["test med 6587"]
+
+[2026-02-14T08:42:50.878Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":2,"items_dispensed":2,"items_missing":0,"total_amount_to_collect":122},"dispensed_medicines":[{"medicine":"Dolo 650","batch":"BATCH-DOL-001","price":2},{"medicine":"Azithral 500","batch":"BATCH-AZI-001","price":120}],"unavailable_medicines":[]}]
+
+[2026-02-14T08:42:51.466Z] MATCHING: "Dolo 650" (norm: 'dolo 650')
+AGAINST DISPENSED: ["dolo 650","azithral 500"]
+AGAINST UNAVAILABLE: []
+
+[2026-02-14T08:42:52.022Z] MATCHING: "Azithral 500" (norm: 'azithral 500')
+AGAINST DISPENSED: ["dolo 650","azithral 500"]
+AGAINST UNAVAILABLE: []
+
+[2026-02-14T08:43:09.209Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":1,"items_dispensed":0,"items_missing":1,"total_amount_to_collect":0},"dispensed_medicines":[],"unavailable_medicines":[{"medicine":"Test Med 6587","reason":"Out of Stock / No Substitute"}]}]
+
+[2026-02-14T08:43:09.787Z] MATCHING: "Test Med 6587" (norm: 'test med 6587')
+AGAINST DISPENSED: []
+AGAINST UNAVAILABLE: ["test med 6587"]
+
+[2026-02-16T06:40:52.745Z] FULL RECEIVED JSON:
+[{"status":"Order Processed","bill_summary":{"total_items_requested":3,"items_dispensed":2,"items_missing":1,"total_amount_to_collect":131},"dispensed_medicines":[{"medicine":"Dolo 650","batch":"BATCH-DOL-001","price":26},{"medicine":"Augmentin 625","batch":"BATCH-AUG-001","price":105}],"unavailable_medicines":[{"medicine":"Test Med 6587","reason":"Out of Stock / No Substitute"}]}]
+
+[2026-02-16T06:40:53.285Z] MATCHING: "Dolo 650" (norm: 'dolo 650')
+AGAINST DISPENSED: ["dolo 650","augmentin 625"]
+AGAINST UNAVAILABLE: ["test med 6587"]
+
+[2026-02-16T06:40:53.832Z] MATCHING: "Augmentin 625" (norm: 'augmentin 625')
+AGAINST DISPENSED: ["dolo 650","augmentin 625"]
+AGAINST UNAVAILABLE: ["test med 6587"]
+
+[2026-02-16T06:40:54.371Z] MATCHING: "Test Med 6587" (norm: 'test med 6587')
+AGAINST DISPENSED: ["dolo 650","augmentin 625"]
+AGAINST UNAVAILABLE: ["test med 6587"]

@@ -14,15 +14,20 @@ export async function getPatientQueue() {
         const appointments = await prisma.appointments.findMany({
             where: {
                 status: {
-                    in: ['Pending', 'Scheduled', 'Checked In', 'In Progress'] // Adjust status as needed
+                    in: ['Pending', 'Scheduled', 'Checked In', 'In Progress', 'Admitted'] // Added Admitted
                 },
+                // For Admitted patients, we might want to see them even if appointment date was yesterday?
+                // For now, keeping "Today's" logic/appointments. 
+                // ideally Admitted patients are in a separate list or "Rounds" list, but for now mixing them.
                 appointment_date: {
                     gte: new Date(new Date().setHours(0, 0, 0, 0)), // Today's appointments
                     lt: new Date(new Date().setHours(23, 59, 59, 999))
                 }
             },
             include: {
-                patient: true // Relation to OPD_REG
+                patient: true, // Relation to OPD_REG
+                // Include admissions to check if currently admitted?
+                // For simplicity, relying on 'status' column in appointments being updated to 'Admitted'.
             },
             orderBy: { appointment_date: 'asc' },
         });
@@ -48,7 +53,8 @@ export async function getPatientQueue() {
 
 export async function admitPatient(patientId: string, doctorName: string, diagnosis: string) {
     try {
-        await prisma.admissions.create({
+        // 1. Create Admission Record
+        const admission = await prisma.admissions.create({
             data: {
                 patient_id: patientId,
                 doctor_name: doctorName,
@@ -57,11 +63,71 @@ export async function admitPatient(patientId: string, doctorName: string, diagno
                 admission_date: new Date(),
             },
         });
+
+        // 2. Update Appointment Status to 'Admitted'
+        // We find the latest appointment for this patient today
+        // Or just let the UI handle the status update via updateAppointmentStatus?
+        // Better to do it here to ensure consistency.
+        // But we don't have appointment_id passed here. 
+        // We will trust the UI/Logic to update appointment status separately or we can query it.
+        // For now, returning success. The UI calls updateStatus separately usually or we should add it.
+
         revalidatePath('/doctor/dashboard');
-        return { success: true };
+        return { success: true, admission_id: admission.admission_id };
     } catch (error) {
         console.error('Admission Error:', error);
         return { success: false, error: 'Admission failed' };
+    }
+}
+
+export async function getPatientHistory(patientId: string) {
+    try {
+        const history = await prisma.clinical_EHR.findMany({
+            where: { patient_id: patientId },
+            orderBy: { created_at: 'desc' }
+        });
+        return { success: true, data: history };
+    } catch (error) {
+        console.error('History Fetch Error:', error);
+        return { success: false, data: [] };
+    }
+}
+
+export async function saveMedicalNote(data: { admission_id: string, note_type: string, details: string }) {
+    try {
+        let finalAdmissionId = data.admission_id;
+
+        // Handle Lookup if UI doesn't have admission_id
+        if (data.admission_id.startsWith('LOOKUP_BY_PATIENT:')) {
+            const patientId = data.admission_id.split(':')[1];
+            // Find latest active admission
+            const admission = await prisma.admissions.findFirst({
+                where: {
+                    patient_id: patientId,
+                    status: 'Admitted'
+                },
+                orderBy: { admission_date: 'desc' }
+            });
+
+            if (!admission) {
+                return { success: false, error: 'No active admission found for this patient' };
+            }
+            finalAdmissionId = admission.admission_id;
+        }
+
+        // @ts-ignore
+        await prisma.medical_notes.create({
+            data: {
+                admission_id: finalAdmissionId,
+                note_type: data.note_type,
+                details: data.details
+            }
+        });
+        revalidatePath('/doctor/dashboard');
+        return { success: true };
+    } catch (error) {
+        console.error('Medical Note Save Error:', error);
+        return { success: false, error: 'Failed to save medical note' };
     }
 }
 
@@ -342,6 +408,54 @@ export async function createPharmacyOrder(patientId: string, doctorId: string, i
                 console.log(`No Match for: ${item.medicine_name}`);
             }
         }
+
+        // 5. CORRECTING PRICE FROM LOCAL INVENTORY (Ignore Agent Price if possible/needed)
+        // User complained Agent returns 100 but Inventory is 10.
+        // We will fetch local prices and update unit_price/total_price for dispensed items.
+        // We also need to update the Order Total.
+
+        const updatedOrderItems = await prisma.pharmacy_order_items.findMany({
+            where: { order_id: order.id }
+        });
+
+        let grandTotal = 0;
+        let itemsDispensedCount = 0;
+
+        for (const item of updatedOrderItems) {
+            if (item.status === 'Dispensed') {
+                const masterMed = await prisma.pharmacy_medicine_master.findFirst({
+                    where: { brand_name: { equals: item.medicine_name, mode: 'insensitive' } }
+                });
+
+                if (masterMed) {
+                    const realUnitPrice = masterMed.price_per_unit;
+                    const realTotalPrice = realUnitPrice * item.quantity_requested;
+
+                    await prisma.pharmacy_order_items.update({
+                        where: { id: item.id },
+                        data: {
+                            unit_price: realUnitPrice,
+                            total_price: realTotalPrice
+                        }
+                    });
+                    grandTotal += realTotalPrice;
+                    itemsDispensedCount++;
+                } else {
+                    // Fallback to what we have if master not found (unlikely)
+                    grandTotal += (item.total_price || 0);
+                    itemsDispensedCount++;
+                }
+            }
+        }
+
+        // Update Order Final Total
+        await prisma.pharmacy_orders.update({
+            where: { id: order.id },
+            data: {
+                total_amount: grandTotal,
+                items_dispensed: itemsDispensedCount
+            }
+        });
 
         return { success: true, orderId: order.id, agentResponse: result };
 

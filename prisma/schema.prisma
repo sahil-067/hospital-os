@@ -28,11 +28,13 @@ model OPD_REG {
   gender       String?
   phone        String?
   email        String?
+  address      String?  // Added in Phase 3
   department   String?
   aadhar_card  String?
   created_at   DateTime @default(now())
 
   appointments appointments[]
+  admissions   admissions[] // Relation added in Phase 3
 }
 
 model appointments {
@@ -165,15 +167,28 @@ model pharmacy_order_items {
 
 // 5. In-Patient & Discharge Module
 model admissions {
-  admission_id String   @id @default(uuid()) // User didn't specify Serial/Text, leaving UUID for ID safety or change to String if needed. User wrote "admission_id".
+  admission_id String   @id @default(uuid())
   patient_id   String
   status       String   // Admitted, Discharged
   diagnosis    String?
   doctor_name  String?
   admission_date DateTime @default(now())
+  discharge_date DateTime?
   
   // Relations
+  patient      OPD_REG @relation(fields: [patient_id], references: [patient_id])
+  medical_notes medical_notes[]
   summaries    discharge_summaries[]
+}
+
+model medical_notes {
+  id           Int      @id @default(autoincrement())
+  admission_id String
+  note_type    String   // Admission Note, Routine Check, Nursing, Discharge Advice
+  details      String
+  created_at   DateTime @default(now())
+
+  admission    admissions @relation(fields: [admission_id], references: [admission_id])
 }
 
 model discharge_summaries {

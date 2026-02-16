@@ -6,10 +6,17 @@ import { revalidatePath } from 'next/cache';
 const prisma = new PrismaClient();
 const WEBHOOK_RESULT_UPLOAD = 'https://n8n.srv1336142.hstgr.cloud/webhook/submit-lab-result';
 
-export async function getPendingOrders() {
+export async function getLabOrders(statusFilter: 'Pending' | 'Completed' | 'All' = 'Pending') {
     try {
+        const whereClause: any = {};
+        if (statusFilter === 'Pending') {
+            whereClause.status = { in: ['Pending', 'Processing'] };
+        } else if (statusFilter === 'Completed') {
+            whereClause.status = 'Completed';
+        }
+
         const orders = await prisma.lab_orders.findMany({
-            where: { status: { in: ['Pending', 'Processing'] } },
+            where: whereClause,
             orderBy: { created_at: 'desc' },
         });
 
@@ -23,11 +30,12 @@ export async function getPendingOrders() {
         const patientMap = new Map(patients.map(p => [p.patient_id, p.full_name]));
 
         const enrichedOrders = orders.map(order => ({
-            order_id: order.barcode, // Map barcode to order_id for UI
+            order_id: order.barcode,
             patient_name: patientMap.get(order.patient_id) || 'Unknown',
             test_type: order.test_type,
-            doctor_name: order.doctor_id, // We don't have a Doctor table name lookup yet, so use ID
+            doctor_name: order.doctor_id,
             status: order.status,
+            result_value: order.result_value,
             created_at: order.created_at
         }));
 
@@ -35,6 +43,28 @@ export async function getPendingOrders() {
     } catch (error) {
         console.error('Lab Orders Fetch Error:', error);
         return { success: false, data: [] };
+    }
+}
+
+export async function getLabStats() {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const pendingCount = await prisma.lab_orders.count({
+            where: { status: { in: ['Pending', 'Processing'] } }
+        });
+
+        const completedToday = await prisma.lab_orders.count({
+            where: {
+                status: 'Completed',
+                created_at: { gte: today }
+            }
+        });
+
+        return { success: true, pendingCount, completedToday };
+    } catch (error) {
+        return { success: false, pendingCount: 0, completedToday: 0 };
     }
 }
 
